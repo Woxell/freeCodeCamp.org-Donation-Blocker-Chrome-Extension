@@ -25,6 +25,10 @@ This keeps the modal out of sight while preserving page usability and maintainin
 
 ## Installation (Unpacked)
 
+Download the ZIP directly:
+
+- [Download ZIP](https://github.com/Woxell/freeCodeCamp.org-Donation-Blocker-Chrome-Extension/archive/refs/heads/main.zip)
+
 1. Open Chrome and go to `chrome://extensions`.
 2. Enable **Developer mode**.
 3. Click **Load unpacked**.

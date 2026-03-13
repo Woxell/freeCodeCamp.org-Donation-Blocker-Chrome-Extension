@@ -29,6 +29,10 @@ Download the ZIP directly:
 
 - [Download ZIP](https://github.com/Woxell/freeCodeCamp.org-Donation-Blocker-Chrome-Extension/archive/refs/heads/main.zip)
 
+Download the ZIP directly:
+
+- [Download ZIP](https://github.com/Woxell/freeCodeCamp.org-Donation-Blocker-Chrome-Extension/archive/refs/heads/main.zip)
+
 1. Unpack the ZIP, make sure the project folder contains the manifest.json among other files.
 2. Open Chrome and go to `chrome://extensions`.
 3. Enable **Developer mode**.

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FCC Donation Blocker</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            width: 260px;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #0a0a23;
+            color: #fff;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 16px 12px;
+            border-bottom: 1px solid #1b1b32;
+        }
+
+        .header-text h1 {
+            font-size: 13px;
+            font-weight: 700;
+            color: #f1be32;
+            line-height: 1.2;
+        }
+
+        .header-text p {
+            font-size: 11px;
+            color: #858591;
+            margin-top: 2px;
+        }
+
+        .status-card {
+            margin: 14px 14px 0;
+            background: #1b1b32;
+            border-radius: 10px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .status-label {
+            font-size: 11px;
+            color: #858591;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-count {
+            font-size: 36px;
+            font-weight: 800;
+            color: #f1be32;
+            line-height: 1;
+        }
+
+        .status-sublabel {
+            font-size: 11px;
+            color: #858591;
+            margin-top: 2px;
+        }
+
+        .active-badge {
+            margin: 10px 14px 0;
+            background: #1b3a1b;
+            border: 1px solid #2a5e2a;
+            border-radius: 8px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #4ade80;
+        }
+
+        .active-badge::before {
+            content: '';
+            width: 7px;
+            height: 7px;
+            background: #4ade80;
+            border-radius: 50%;
+            box-shadow: 0 0 6px #4ade80;
+            flex-shrink: 0;
+        }
+
+        .info {
+            padding: 12px 14px 14px;
+            font-size: 11px;
+            color: #555568;
+            line-height: 1.5;
+            text-align: center;
+        }
+    </style>
+    <script>
+        chrome.storage.local.get('blockedCount', result => {
+            const count = (result && result.blockedCount) ? result.blockedCount : 0;
+            document.getElementById('count').textContent = count;
+        });
+    </script>
+</head>
+
+<body>
+    <div class="header">
+        <div class="header-text">
+            <h1>FCC Donation Blocker</h1>
+            <p>freecodecamp.org</p>
+        </div>
+    </div>
+
+    <div class="status-card">
+        <div>
+            <div class="status-label">Popups blocked</div>
+            <div class="status-count" id="count">0</div>
+            <div class="status-sublabel">this session & all-time</div>
+        </div>
+    </div>
+
+    <div class="active-badge">
+        Active on freecodecamp.org
+    </div>
+
+    <div class="info">
+        Donation popups are automatically removed as soon as they appear.
+    </div>
+</body>
+
+</html>

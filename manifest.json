@@ -1,0 +1,38 @@
+{
+    "manifest_version": 3,
+    "name": "freeCodeCamp Donation Popup Blocker",
+    "version": "1.0.0",
+    "description": "Automatically dismisses donation popups on freeCodeCamp.org so you can focus on learning.",
+    "icons": {
+        "16": "icons/icon16.png",
+        "48": "icons/icon48.png",
+        "128": "icons/icon128.png"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "https://www.freecodecamp.org/*",
+                "https://freecodecamp.org/*"
+            ],
+            "js": [
+                "content.js"
+            ],
+            "run_at": "document_idle"
+        }
+    ],
+    "action": {
+        "default_popup": "popup.html",
+        "default_icon": {
+            "16": "icons/icon16.png",
+            "48": "icons/icon48.png",
+            "128": "icons/icon128.png"
+        }
+    },
+    "permissions": [
+        "storage"
+    ],
+    "host_permissions": [
+        "https://www.freecodecamp.org/*",
+        "https://freecodecamp.org/*"
+    ]
+}

@@ -1,74 +1,82 @@
-let blockedCount = 0;
-
 function updateBadge() {
-    blockedCount++;
-    chrome.runtime.sendMessage({ action: 'updateCount', count: blockedCount }).catch(() => { });
-    console.debug(`[FCC Blocker] Dismissed donation modal. Total: ${blockedCount}`);
+    chrome.storage.local.get({ blockedCount: 0 }, (result) => {
+        const newCount = result.blockedCount + 1;
+        chrome.storage.local.set({ blockedCount: newCount });
+        console.debug(`[FCC Blocker] Ghost modal disposed. Total: ${newCount}`);
+    });
 }
 
-// ─── 1. Hide everything instantly ──────────────────────────────────────────────
+//1. Ghost Mode CSS
 const style = document.createElement('style');
 style.textContent = `
-  /* Hide the modal, the animation, and the portal wrapper */
-  #headlessui-portal-root,
-  .donation-modal,
-  .donation-animation-container {
+  /* Push the specific donation portal off-screen but keep it in the DOM */
+  #headlessui-portal-root:has(.donation-modal),
+  #headlessui-portal-root:has(.donation-animation-container) {
+    position: fixed !important;
+    top: -9999px !important;
+    left: -9999px !important;
     opacity: 0 !important;
-    visibility: hidden !important;
     pointer-events: none !important;
+  }
+
+  /* Force scrollbars to stay active while the ghost modal is ticking */
+  html:has(#headlessui-portal-root .donation-modal),
+  html:has(#headlessui-portal-root .donation-animation-container),
+  body:has(#headlessui-portal-root .donation-modal),
+  body:has(#headlessui-portal-root .donation-animation-container) {
+    overflow: visible !important;
+    padding-right: 0 !important;
   }
 `;
 document.head.appendChild(style);
 
-function nukeModal() {
-
-    setTimeout(() => {
-        window.dispatchEvent(new KeyboardEvent('keydown', {
-            key: 'Escape',
-            code: 'Escape',
-            keyCode: 27,
-            which: 27,
-            bubbles: true,
-            cancelable: true
-        }));
-
-        const backdrop = document.querySelector('.fixed.inset-0.bg-gray-900.opacity-50');
-        if (backdrop) backdrop.click();
-
-    }, 100);
-
+//2. Targeted Dismissal & Page Unlocker
+function nukeDonationModal() {
     let attempts = 0;
+
     const pollInterval = setInterval(() => {
         attempts++;
 
-        // Look for the "Ask me later" close button
-        const closeBtn = document.querySelector('button.close-button');
-        if (closeBtn) {
-            closeBtn.click();
-            clearInterval(pollInterval);
-            updateBadge();
+        // Headless UI paralyzes the rest of the page by adding 'inert'.
+        // This is stripped off so you can keep using the page.
+        Array.from(document.body.children).forEach(child => {
+            if (child.id !== 'headlessui-portal-root' && child.hasAttribute('inert')) {
+                child.removeAttribute('inert');
+                child.removeAttribute('aria-hidden');
+            }
+        });
+
+        // Check for the delayed close button
+        const closeBtns = document.querySelectorAll('button.close-button');
+        for (const btn of closeBtns) {
+            if (btn.textContent.includes('Ask me later')) {
+                btn.click(); // Silently dispose of the ghost modal
+                clearInterval(pollInterval);
+                updateBadge();
+                return;
+            }
         }
 
-        //Stop polling if the modal is successfully gone
-        if (!document.querySelector('.donation-modal') || attempts > 125) {
+        // Stop polling if the modal vanishes on its own
+        if ((!document.querySelector('.donation-modal') && !document.querySelector('.donation-animation-container')) || attempts > 150) {
             clearInterval(pollInterval);
         }
     }, 200); //Check 5 times a second
 }
 
-// ─── 3. MutationObserver ─────────────────────────────────────────────────────
+//3. Strict MutationObserver
 const observer = new MutationObserver(mutations => {
     for (const mutation of mutations) {
         for (const node of mutation.addedNodes) {
             if (node.nodeType !== Node.ELEMENT_NODE) continue;
 
-            // Detect the Headless UI portal or the donation modal wrapper
             if (
-                node.id === 'headlessui-portal-root' ||
                 node.classList?.contains('donation-modal') ||
-                node.querySelector?.('.donation-modal')
+                node.classList?.contains('donation-animation-container') ||
+                node.querySelector?.('.donation-modal') ||
+                node.querySelector?.('.donation-animation-container')
             ) {
-                nukeModal();
+                nukeDonationModal();
             }
         }
     }

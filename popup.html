@@ -27,6 +27,18 @@
             border-bottom: 1px solid #1b1b32;
         }
 
+        .logo {
+            width: 32px;
+            height: 32px;
+            background: #f1be32;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
         .header-text h1 {
             font-size: 13px;
             font-weight: 700;
@@ -70,6 +82,11 @@
             margin-top: 2px;
         }
 
+        .shield-icon {
+            font-size: 38px;
+            opacity: 0.25;
+        }
+
         .active-badge {
             margin: 10px 14px 0;
             background: #1b3a1b;
@@ -102,15 +119,23 @@
         }
     </style>
     <script>
-        chrome.storage.local.get('blockedCount', result => {
-            const count = (result && result.blockedCount) ? result.blockedCount : 0;
-            document.getElementById('count').textContent = count;
+        // 1. Get the current count from storage as soon as the popup opens
+        chrome.storage.local.get({ blockedCount: 0 }, (result) => {
+            document.getElementById('count').textContent = result.blockedCount;
+        });
+
+        // 2. Listen for storage changes (in case a popup is blocked while this menu is open)
+        chrome.storage.onChanged.addListener((changes, namespace) => {
+            if (namespace === 'local' && changes.blockedCount) {
+                document.getElementById('count').textContent = changes.blockedCount.newValue;
+            }
         });
     </script>
 </head>
 
 <body>
     <div class="header">
+        <div class="logo">🛡️</div>
         <div class="header-text">
             <h1>FCC Donation Blocker</h1>
             <p>freecodecamp.org</p>
@@ -121,8 +146,9 @@
         <div>
             <div class="status-label">Popups blocked</div>
             <div class="status-count" id="count">0</div>
-            <div class="status-sublabel">this session & all-time</div>
+            <div class="status-sublabel">this session</div>
         </div>
+        <div class="shield-icon">🚫</div>
     </div>
 
     <div class="active-badge">
@@ -132,6 +158,8 @@
     <div class="info">
         Donation popups are automatically removed as soon as they appear.
     </div>
+
+    <script src="popup.js"></script>
 </body>
 
 </html>

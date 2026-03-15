@@ -34,11 +34,19 @@ document.head.appendChild(style);
 function nukeDonationModal() {
     let attempts = 0;
 
+    const clickShield = (e) => {
+        const link = e.target.closest('a');
+        if (link && link.href) {
+            e.stopPropagation();
+            window.location.href = link.href;
+        }
+    };
+
+    window.addEventListener('click', clickShield, true);
+
     const pollInterval = setInterval(() => {
         attempts++;
 
-        // Headless UI paralyzes the rest of the page by adding 'inert'.
-        // This is stripped off so you can keep using the page.
         Array.from(document.body.children).forEach(child => {
             if (child.id !== 'headlessui-portal-root' && child.hasAttribute('inert')) {
                 child.removeAttribute('inert');
@@ -50,19 +58,21 @@ function nukeDonationModal() {
         const closeBtns = document.querySelectorAll('button.close-button');
         for (const btn of closeBtns) {
             if (btn.textContent.includes('Ask me later')) {
-                btn.click(); // Silently dispose of the ghost modal
+                btn.click();
                 clearInterval(pollInterval);
+                window.removeEventListener('click', clickShield, true);
                 updateBadge();
                 return;
             }
         }
 
-        // Stop polling if the modal vanishes on its own
         if ((!document.querySelector('.donation-modal') && !document.querySelector('.donation-animation-container')) || attempts > 150) {
             clearInterval(pollInterval);
+            window.removeEventListener('click', clickShield, true);
         }
-    }, 200); //Check 5 times a second
+    }, 200);
 }
+
 
 //3. Strict MutationObserver
 const observer = new MutationObserver(mutations => {
@@ -76,6 +86,7 @@ const observer = new MutationObserver(mutations => {
                 node.querySelector?.('.donation-modal') ||
                 node.querySelector?.('.donation-animation-container')
             ) {
+                updateBadge();
                 nukeDonationModal();
             }
         }

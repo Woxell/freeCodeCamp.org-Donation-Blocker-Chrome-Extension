@@ -34,6 +34,7 @@ Download the ZIP directly:
 3. Enable **Developer mode**.
 4. Click **Load unpacked**.
 5. Select this project folder.
+6. If popups keep happening, try a hard reload of the page (Shift+F5).
 
 ## Notes
 
